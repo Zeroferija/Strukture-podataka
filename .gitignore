@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Vim temporary files
+*.swp
+*.swo
+
+# Visual Studio Code
+.vscode/

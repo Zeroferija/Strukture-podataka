@@ -1,7 +1,7 @@
 //3. Prethodnom zadatku dodati funkcije:
 //A. dinamički dodaje novi element iza određenog elementa,
 //B. dinamički dodaje novi element ispred određenog elementa,
-//C. sortira listu po prezimenima osoba,
+//C. sortira listu po prezimenima osoba ( OVO NECEMO RADIT)
 //D. upisuje listu u datoteku,
 //E. čita listu iz datoteke.
 #define _CRT_SECURE_NO_WARNINGS
@@ -58,8 +58,15 @@ int main(void)
         .birthYear = 0
     };
 
+    Person headR = { 
+        .next = NULL,
+        .name = {0}, 
+        .surname = {0}, 
+        .birthYear = 0
+     }; // for reading from file
+
     do {
-        printf("\nA-dodaj na pocetak, C-dodaj na kraj, B-ispis, D-trazi, E-brisi, X-izlaz: ");
+        printf("\nA-dodaj na pocetak, C-dodaj na kraj, P-dodaj iza, K-dodaj ispred, B-ispis, D-trazi, E-brisi, W -upis u datoteku, R -citaj iz datoteke, X-izlaz: ");
         if (scanf(" %c", &in) != 1) return SCANF_ERROR;
 
         switch (in) {
@@ -72,6 +79,20 @@ int main(void)
         case 'c': 
             addToEndOfTheList(&head);   
         break;
+
+        case 'P':
+        case 'p':
+				printf("Dodaj iza osobe po prezimenu: ");
+				if (scanf(" %s", surname) != 1) return SCANF_ERROR;
+				addAfter(&head, surname);
+				break;
+
+		case 'K':
+        case 'k':
+				printf("Dodaj ispred osobe po prezimenu: ");
+				if (scanf(" %s", surname) != 1) return SCANF_ERROR;
+				addBefore(&head, surname);
+				break;
 
         case 'B': 
         case 'b': 
@@ -93,6 +114,18 @@ int main(void)
             scanf(" %49s", surname);
             deletePerson(&head, surname);
         break;
+
+        case 'W':
+        case 'w':
+				printf("Writing list into file...\n");
+				fileWrite(head.next);
+				break;
+		case 'R':
+        case 'r':
+				printf("Reading list from file:\n");
+				fileRead(&headR);
+				printList(headR.next);
+				break;
         }
     } while (in != 'X' && in != 'x');
 
@@ -104,6 +137,7 @@ int main(void)
     }
  
     return EXIT_SUCCESS;
+
 }
 
 
@@ -322,7 +356,7 @@ int fileWrite(Position current)
 	return EXIT_SUCCESS;
 }
 
-//Cita i ispisuje datoteku
+//Cita i ispisuje karaktere iz datoteke, bez dodavanja u listu
 int _fileRead()
 {
 	char c = 0;
@@ -334,7 +368,7 @@ int _fileRead()
 		return FILE_ERROR_OPEN;
 	}
 
-    //Citamo i ispisujemo znak po znak dok ne dodjemo do kraja datoteke
+    
 	c = getc(fp);
 	while (c != EOF) {
 		printf("%c", c);
@@ -358,22 +392,22 @@ int fileRead(Position head)
 	}
 
 
-	Position prev = NULL, current = NULL;
+	Position prev = NULL, current = NULL; // pointeri za prethodnu i trenutnu osobu
 
-	deleteList(head); // so repeated reading won't append file content to previous content
 	prev = head;
 
 	while (!feof(filePointer))
 	{
-		current = (Position)malloc(sizeof(Person)); // pointer to newly read person
+		current = (Position)malloc(sizeof(Person)); // pointer za novododanu osobu
 		if (!current) {
 			printf("Malloc error!\n");
 			return MALLOC_ERROR;
 		}
+                
 		if (fscanf(filePointer, " %s %s %d ", current->name, current->surname, &current->birthYear) != 3)
 			return SCANF_ERROR;
 
-		// add new person after previous
+		// dodavanje nove osobe poslje prethodne osobe
 		current->next = prev->next;
 		prev->next = current;
 
